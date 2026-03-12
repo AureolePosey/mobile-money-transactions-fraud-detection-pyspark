@@ -4,14 +4,14 @@ from utils.config import RAW_DATA_PATH
 
 def ingest_transactions_data():
     spark = create_spark_session()
-   print("Reading raw transactions dataset...")
+    print("Reading raw transactions dataset...")
     df = (
         spark.read
         .option("header", True)
         .option("inferSchema", True)
         .csv(RAW_DATA_PATH)
     )
-     print("Schema of dataset:")
+    print("Schema of dataset:")
     df.printSchema()
 
     print("Preview of data:")
@@ -19,7 +19,7 @@ def ingest_transactions_data():
 
     print("Number of rows:")
     print(df.count())
-return df
+    return df
 
 
 if __name__ == "__main__":
