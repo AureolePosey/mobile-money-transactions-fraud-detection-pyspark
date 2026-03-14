@@ -34,7 +34,7 @@ def detect_fraud():
 
     df = df.withColumn(
         "rule_abnormal_amount",
-        when(col("amount") > (col("avg_transaction_amount_per_user") * 5), 1)
+        when(col("amount") > (col("avg_transaction_amount_per_user") * 5), 1).otherwise(0)
     )
 
     # --------------------------------
