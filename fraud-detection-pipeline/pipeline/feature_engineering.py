@@ -54,7 +54,8 @@ if __name__ == "__main__":
     df_features = run_feature_engineering()
 
     df_features.write \
-        .mode("overwrite") \
-        .parquet("data/curated/transactions_features")
+    .mode("overwrite") \
+    .partitionBy("transaction_date") \
+    .parquet("data/curated/transactions_features")
 
     logger.info("Features saved successfully")

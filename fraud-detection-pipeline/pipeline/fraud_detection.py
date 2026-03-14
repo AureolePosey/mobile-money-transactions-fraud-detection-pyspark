@@ -2,20 +2,17 @@ from utils.spark_session import create_spark_session
 from utils.logger import setup_logger
 from pyspark.sql.functions import col, when
 
-
 def detect_fraud():
-
     spark = create_spark_session()
     logger = setup_logger()
 
     logger.info("Loading features dataset...")
-
+    # On lit le dossier curated qui est déjà partitionné par date
     df = spark.read.parquet("data/curated/transactions_features")
 
     # --------------------------------
     # Rule 1 : very high transaction
     # --------------------------------
-
     df = df.withColumn(
         "rule_high_amount",
         when(col("amount") > 1000000, 1).otherwise(0)
@@ -24,7 +21,6 @@ def detect_fraud():
     # --------------------------------
     # Rule 2 : too many transactions
     # --------------------------------
-
     df = df.withColumn(
         "rule_too_many_transactions",
         when(col("transactions_per_user_per_day") > 10, 1).otherwise(0)
@@ -33,7 +29,6 @@ def detect_fraud():
     # --------------------------------
     # Rule 3 : abnormal amount
     # --------------------------------
-
     df = df.withColumn(
         "rule_abnormal_amount",
         when(col("amount") > (col("avg_transaction_amount_per_user") * 5), 1).otherwise(0)
@@ -42,7 +37,6 @@ def detect_fraud():
     # --------------------------------
     # Final fraud flag
     # --------------------------------
-
     df = df.withColumn(
         "fraud_flag",
         when(
@@ -54,18 +48,17 @@ def detect_fraud():
     )
 
     logger.info("Fraud detection completed")
-
     df.show(10)
-
     return df
 
-
 if __name__ == "__main__":
-
+    logger = setup_logger()
     df_fraud = detect_fraud()
 
+    # SAUVEGARDE AVEC PARTITIONNEMENT
     df_fraud.write \
         .mode("overwrite") \
+        .partitionBy("transaction_date") \
         .parquet("data/analytics/fraud_transactions")
 
-    logger.info("Fraud dataset saved")
+    logger.info("Fraud dataset saved and partitioned by date in analytics folder")
