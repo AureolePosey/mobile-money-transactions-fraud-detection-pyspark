@@ -1,11 +1,13 @@
 from utils.spark_session import create_spark_session
+from utils.logger import setup_logger
 from utils.config import RAW_DATA_PATH
 from pyspark.sql.functions import col
 
 
 def clean_transactions():
     spark = create_spark_session()
-    print("Loading dataset...")
+    logger = setup_logger()
+    logger.info("Loading raw dataset")
     df = (
         spark.read
         .option("header", True)
@@ -13,7 +15,7 @@ def clean_transactions():
         .csv(RAW_DATA_PATH)
     )
 
-    print("Initial number of rows:", df.count())
+    logger.info("Initial number of rows: %d", df.count())
 
    #------------------------------
    # Remove duplicates
@@ -21,19 +23,19 @@ def clean_transactions():
 
 
     df = df.dropDuplicates(["transaction_id"])
-    print("Number of rows after removing duplicates:", df.count())
+    logger.info("Number of rows after removing duplicates: %d", df.count())
 
     #------------------------------
     # Remove transactions with negative amounts
     #------------------------------
     df = df.filter(col("amount") >= 0)
-    print("Number of rows after filtering out negative amounts:", df.count())
+    logger.info("Number of rows after filtering out negative amounts: %d", df.count())
 
     #------------------------------
     # handle null values - for simplicity, we will drop rows with any nulls
     #------------------------------
     df = df.dropna()
-    print("After removing nulls values:", df.count())
+    logger.info("Number of rows after removing nulls: %d", df.count())
 
     return df
 
@@ -44,5 +46,5 @@ if __name__ == "__main__":
         .mode("overwrite") \
         .parquet("data/clean/transactions_clean")
 
-    print("Clean dataset saved successfully")
+    logger.info("Clean dataset saved successfully")
     

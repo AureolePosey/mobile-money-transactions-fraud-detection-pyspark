@@ -1,11 +1,13 @@
 from utils.spark_session import create_spark_session
 from utils.config import RAW_DATA_PATH
+from utils.logger import setup_logger
 from pyspark.sql.functions import col, count, when
 
 def run_data_quality_checks():
+    logger = setup_logger()
 
     spark = create_spark_session()
-    print("Loading dataset...")
+    logger.info("Loading dataset...")
 
 
     df = (
@@ -16,14 +18,14 @@ def run_data_quality_checks():
     )
 
     # Check total row
-    print("Total number of rows:")
-    print(df.count())
+    logger.info("Checking total number of rows...")
+    logger.info(f"Total number of rows: {df.count()}")
 
      # -----------------------------
     # Null values check
     # -----------------------------
 
-    print("\nChecking null values...")
+    logger.info("Checking for null values...")
     null_counts = df.select([
         count(when(col(c).isNull(), c)).alias(c)
         for c in df.columns
@@ -35,24 +37,24 @@ def run_data_quality_checks():
     # Duplicate transactions IDs check
     # -----------------------------
 
-    print("\nChecking for duplicate transactions IDs...")
+    logger.info("Checking for duplicate transactions IDs...")
     
     duplicate_count = df.groupBy("transaction_id").count().filter(col("count") > 1).count()
-    print(f"Number of duplicate transaction IDs: {duplicate_count}")
+    logger.info(f"Number of duplicate transaction IDs: {duplicate_count}")
 
 
      # -------------------------------
     # Negative transaction amounts check
     # -------------------------------
-    print("\nChecking for negative transaction amounts...")
+    logger.info("Checking for negative transaction amounts...")
     negative_amount_count = df.filter(col("amount") < 0).count()
-    print(f"Number of transactions with negative amounts: {negative_amount_count}")
+    logger.info(f"Number of transactions with negative amounts: {negative_amount_count}")
 
     # -------------------------------
     # Basic statistics
     # -------------------------------
 
-    print("\nTransaction amounts statistics:")
+    logger.info("Calculating transaction amounts statistics...")
     df.select("amount").describe().show()
 
 if __name__ == "__main__":

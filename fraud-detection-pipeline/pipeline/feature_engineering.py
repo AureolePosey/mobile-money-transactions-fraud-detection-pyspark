@@ -1,14 +1,16 @@
 from utils.spark_session import create_spark_session
+from utils.logger import setup_logger
 from pyspark.sql.functions import col, when, count,avg,count,to_date
 from pyspark.sql.window import Window
 
 
 def run_feature_engineering():
-    print("Starting feature engineering...")
+    logger = setup_logger()
+    logger.info("Starting feature engineering...")
 
     spark = create_spark_session()
 
-    print("Loading clean dataset...")
+    logger.info("Loading clean dataset...")
     df = spark.read.parquet("data/clean/transactions_clean")
 
     # -----------------------------
@@ -42,7 +44,7 @@ def run_feature_engineering():
     )
 
    
-    print("Feature Engineering completed")
+    logger.info("Feature Engineering completed")
 
     df.show(10)
     
@@ -55,4 +57,4 @@ if __name__ == "__main__":
         .mode("overwrite") \
         .parquet("data/curated/transactions_features")
 
-    print("Features saved successfully")
+    logger.info("Features saved successfully")

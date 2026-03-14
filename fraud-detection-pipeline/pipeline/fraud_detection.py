@@ -1,12 +1,14 @@
 from utils.spark_session import create_spark_session
+from utils.logger import setup_logger
 from pyspark.sql.functions import col, when
 
 
 def detect_fraud():
 
     spark = create_spark_session()
+    logger = setup_logger()
 
-    print("Loading features dataset...")
+    logger.info("Loading features dataset...")
 
     df = spark.read.parquet("data/curated/transactions_features")
 
@@ -51,7 +53,7 @@ def detect_fraud():
         ).otherwise(0)
     )
 
-    print("Fraud detection completed")
+    logger.info("Fraud detection completed")
 
     df.show(10)
 
@@ -66,4 +68,4 @@ if __name__ == "__main__":
         .mode("overwrite") \
         .parquet("data/analytics/fraud_transactions")
 
-    print("Fraud dataset saved")
+    logger.info("Fraud dataset saved")
