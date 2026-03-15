@@ -59,7 +59,7 @@ if __name__ == "__main__":
     # Top fraud operators
     # ------------------------------
 
-    print("Top fraud operators":)
+    print("Top fraud operators")
 
     df.filter(col("fraud_flag") == 1) \
         .groupBy("operator") \
