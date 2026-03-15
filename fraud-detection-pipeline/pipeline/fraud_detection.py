@@ -7,7 +7,7 @@ def detect_fraud():
     logger = setup_logger()
 
     logger.info("Loading features dataset...")
-    # On lit le dossier curated qui est déjà partitionné par date
+    # read curated dataset with features
     df = spark.read.parquet("data/curated/transactions_features")
 
     # --------------------------------

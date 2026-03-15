@@ -18,7 +18,7 @@ def clean_transactions():
     # Création de la colonne de date pour le partitionnement futur
     # On transforme le timestamp en date simple (YYYY-MM-DD)
     df = df.withColumn("transaction_date", to_date(col("timestamp")))
-
+    ## Nettoyage des données : suppression des doublons, des valeurs nulles et des montants négatifs
     df = df.dropDuplicates(["transaction_id"])
     df = df.filter(col("amount") >= 0)
     df = df.dropna()
